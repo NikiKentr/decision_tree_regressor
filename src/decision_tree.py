@@ -1,7 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional, Set
+from typing import Optional, Set, List  # Import List explicitly
 import numpy as np
 from numpy.typing import NDArray
+import pydotplus
+from sklearn.tree import export_graphviz
+from IPython.display import Image
 
 @dataclass
 class Split:
@@ -31,6 +34,11 @@ class DecisionTreeRegressor:
     def predict(self, X: NDArray[np.float64]) -> NDArray[np.float64]:
         return np.array([self._predict(inputs, self.tree) for inputs in X])
     
+    def visualize_tree(self, feature_names: Optional[List[str]] = None) -> None:
+        dot_data = export_graphviz(self.tree, out_file=None, feature_names=feature_names, filled=True)
+        graph = pydotplus.graph_from_dot_data(dot_data)
+        Image(graph.create_png())
+
     def _mse(self, y: NDArray[np.float64]) -> float: 
         if len(y) == 0:
             return 0
@@ -60,7 +68,7 @@ class DecisionTreeRegressor:
                     best_mse = current_mse
                     best_split = Split(feature, threshold, (X[left_mask], left_y), (X[right_mask], right_y))
         return best_split
-    
+
     def _build_tree(self, X: NDArray[np.float64], y: NDArray[np.float64], depth: int = 0) -> TreeNode:
         if depth >= self.max_depth or len(np.unique(y)) == 1 or len(y) < self.min_split:
             return TreeNode(value=np.mean(y))
