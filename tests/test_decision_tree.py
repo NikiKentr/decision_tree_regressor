@@ -1,0 +1,27 @@
+import unittest
+import numpy as np
+import sys
+import os
+
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.join(current_dir, '..', 'src')
+src_dir = os.path.abspath(src_dir)
+sys.path.append(src_dir)
+
+from decision_tree import DecisionTreeRegressor
+
+class TestDecisionTreeRegressor(unittest.TestCase):
+    def test_fit_predict(self):
+        X_train = np.arange(14).reshape(-1, 1)
+        y_train = np.array([1, 1.2, 1.4, 1.1, 1, 5.5, 6.1, 6.7, 6.4, 6, 6, 3, 3.2, 3.1])
+        
+        model = DecisionTreeRegressor()
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_train)
+        
+        self.assertTrue(len(y_pred) == len(y_train))
+        self.assertTrue(np.isclose(np.mean(y_train), np.mean(y_pred), atol=0.5))
+
+if __name__ == '__main__':
+    unittest.main()
